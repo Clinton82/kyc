@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Clinton Gitonga - Portfolio</title>
+
+<!-- Icons for Telegram/WeChat -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+<style>
+  :root{
+    --accent:#00f7ff;
+    --bg:#0a0a0a;
+    --panel:#111;
+    --soft:#222;
+    --text:#eaeaea;
+    --muted:#cccccc;
+    --telegram:#0088cc;
+    --wechat:#09b83e;
+    --hole-size:280px; /* visual black-hole size above the footer */
+  }
+
+  /* Base */
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:black;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+  body{overflow-x:hidden}
+
+  /* Fullscreen starfield canvas */
+  #starfield{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    display:block;
+    background:black;
+    pointer-events:none; /* allow clicks through */
+  }
+
+  /* Header */
+  header{
+    position:sticky; top:0;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px;
+    padding:14px 18px;
+    background:rgba(0,0,0,.6);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    z-index:10;
+  }
+  .site-logo{display:flex; align-items:center; gap:10px}
+  .site-logo img{width:60px; height:auto}
+  .site-logo h1{margin:0; font-size:24px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent)}
+
+  nav{display:flex; gap:14px; flex-wrap:wrap}
+  nav a{
+    color:#fff; text-decoration:none; font-size:14px; padding:6px 10px; border-radius:8px;
+    transition:background .2s ease, color .2s ease;
+  }
+  nav a:hover{background:rgba(255,255,255,.08); color:var(--accent)}
+
+  .lang-switch{
+    display:flex; gap:8px; align-items:center;
+  }
+  .lang-switch button{
+    background:transparent; border:1px solid rgba(255,255,255,.35);
+    color:#fff; padding:6px 10px; border-radius:8px; font-size:14px;
+    cursor:pointer; touch-action:manipulation;
+  }
+  .lang-switch button.active{border-color:var(--accent); color:var(--accent)}
+
+  /* Sections */
+  section{padding:56px 16px}
+  .container{max-width:1100px; margin:0 auto}
+
+  /* Hero */
+  .hero{ text-align:center; padding-top:64px; padding-bottom:64px}
+  .hero h2{font-size:36px; color:var(--accent); margin:0 0 10px}
+  .hero p{max-width:700px; margin:0 auto; color:var(--muted); line-height:1.6}
+  .cta{
+    display:inline-block; margin-top:18px; padding:10px 16px; border-radius:10px;
+    background:var(--accent); color:#000; text-decoration:none; font-weight:700;
+  }
+
+  /* About */
+  .about{ text-align:center; background:rgba(255,255,255,.02); border-top:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.06)}
+  .about h3{font-size:28px; color:var(--accent); margin:0 0 10px}
+  .about p{max-width:900px; margin:0 auto; color:#ddd; line-height:1.7}
+
+  /* Services (your grid) */
+  .services h2{ text-align:center; color:var(--accent); font-size:28px; margin:0 0 16px}
+  .work-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:16px;
+  }
+  .work-item{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;
+    padding:18px;
+    text-align:center;
+    transition:transform .25s ease, background .25s ease;
+  }
+  .work-item:hover{transform:translateY(-4px); background:rgba(0,247,255,.12)}
+  .work-item img{width:60px; height:auto; margin-bottom:8px; border-radius:6px}
+  .work-item p{margin:0; color:#ddd}
+
+  .kyc-banner{
+    margin-top:20px; text-align:center;
+  }
+  .kyc-banner h1{
+    margin:0; font-size:22px; color:pink; font-weight:bold; font-style:italic;
+  }
+
+  /* Testimonials (your marquee) */
+  .testimonials h2{ text-align:center; color:var(--accent); font-size:28px; margin:0 0 16px}
+  .testimonial-container{
+    overflow:hidden; padding:24px 0; background:rgba(255,255,255,.02);
+    border-top:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.06)
+  }
+  .testimonial-track{ display:flex; gap:16px; animation:scrollLeft 20s linear infinite}
+  .testimonial{
+    flex:0 0 auto; min-width:200px;
+    background:rgba(255,255,255,.08); color:#ccc;
+    border-radius:10px; padding:12px; text-align:center;
+  }
+  .testimonial strong{ color:#ff9900; display:block; margin-bottom:8px}
+  .testimonial img{
+    width:100%; max-width:150px; height:auto; border-radius:6px; display:block; margin:0 auto;
+  }
+  @keyframes scrollLeft{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* Contact (centered text, icons left under text) */
+  .contact{ background:var(--panel); border-top:1px solid rgba(255,255,255,.06)}
+  .contact .center-text{ text-align:center; max-width:800px; margin:0 auto}
+  .contact h2{ font-size:28px; color:var(--accent); margin:0 0 10px}
+  .contact p{ color:#ccc; line-height:1.7; margin:8px 0}
+
+  .contact-icons{
+    display:flex; gap:14px; justify-content:flex-start;
+    margin-top:22px; padding-left:8px; /* left align under text block */
+  }
+  .contact-icons a{
+    width:52px; height:52px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; text-decoration:none; font-size:24px;
+    box-shadow:0 4px 8px rgba(0,0,0,.35);
+    transition:transform .2s ease, box-shadow .2s ease;
+    touch-action:manipulation;
+  }
+  .contact-icons a:hover{ transform:scale(1.08); box-shadow:0 6px 12px rgba(0,0,0,.45)}
+  .contact-icons .telegram{ background:var(--telegram)}
+  .contact-icons .wechat{ background:var(--wechat)}
+
+  .qr-section{ text-align:center; display:inline-block; margin-top:18px}
+  .qr-section p{ color:#ccc;}
+  .qr-section img{ width:120px; height:120px; }
+
+  /* Footer with “black hole” fade */
+  footer{
+    position:relative;
+    background:linear-gradient(#000 0%, #000 40%, #030303 100%);
+    padding:24px 16px; text-align:center; color:#aaa; font-size:14px;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  /* visual black-hole just above footer content */
+  footer::before{
+    content:"";
+    position:absolute; left:50%; top:calc(-1 * var(--hole-size)/2);
+    width:var(--hole-size); height:var(--hole-size);
+    transform:translateX(-50%);
+    background:radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 35%, rgba(0,0,0,.85) 66%, #000 90%);
+    filter:blur(6px);
+    pointer-events:none;
+  }
+  footer a{ color:var(--accent); text-decoration:none; margin:0 8px}
+  footer a:hover{ text-decoration:underline }
+
+  /* Mobile tweaks */
+  @media (max-width:600px){
+    .hero h2{font-size:28px}
+    .about h3{font-size:22px}
+    nav{display:none} /* keep header clean on small screens */
+  }
+</style>
+</head>
+<body>
+
+<!-- Smooth starfield background -->
+<canvas id="starfield"></canvas>
+
+<!-- Header -->
+<header>
+  <div class="site-logo">
+    <h1>jukekyc</h1>
+    <img src="logo.png" alt="logo" loading="lazy">
+  </div>
+
+  <nav>
+    <a href="#home" data-en="Home" data-zh="首页">Home</a>
+    <a href="#about" data-en="About" data-zh="关于">About</a>
+    <a href="#services" data-en="Services" data-zh="服务">Services</a>
+    <a href="#testimonials" data-en="Testimonials" data-zh="评价">Testimonials</a>
+    <a href="#contact" data-en="Contact" data-zh="联系">Contact</a>
+  </nav>
+
+  <div class="lang-switch">
+    <button id="btn-en" class="active" aria-pressed="true">English</button>
+    <button id="btn-zh" aria-pressed="false">中文</button>
+  </div>
+</header>
+
+<!-- Hero -->
+<section id="home" class="hero">
+  <div class="container">
+    <h2 data-en="Welcome" data-zh="欢迎">Welcome</h2>
+    <p
+      data-en="I am an overseas Professional KYC seller. Building trust, one exchange at a time."
+      data-zh="我是一名海外专业KYC提供者——以真实与效率，在各大平台为您建立信任。">
+      I am an overseas Professional KYC seller. Building trust, one exchange at a time.
+    </p>
+    <a class="cta" href="#contact" data-en="Contact Me" data-zh="联系我">Contact Me</a>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about" class="about">
+  <div class="container">
+    <h3 data-en="About Me" data-zh="关于我">About Me</h3>
+    <p
+      data-en="I'm Juke, a professional overseas real-person KYC seller. I have a large team ready to provide quality KYC accounts."
+      data-zh="我是Juke，专业的海外真人KYC服务提供者。我们拥有庞大的团队，随时为您提供高质量的KYC账户。">
+      I'm Juke, a professional overseas real-person KYC seller. I have a large team ready to provide quality KYC accounts.
+    </p>
+  </div>
+</section>
+
+<!-- Services Grid (Section 4) -->
+<section id="services" class="services">
+  <div class="container">
+    <h2 data-en="Some of the services I offer" data-zh="我提供的一些服务">Some of the services I offer</h2>
+
+    <div class="work-grid">
+      <div class="work-item"><img src="anoma.jpg" alt="Anoma" loading="lazy"><p>Anoma</p></div>
+      <div class="work-item"><img src="amazon.jpg" alt="Amazon" loading="lazy"><p>Amazon</p></div>
+      <div class="work-item"><img src="okx.jpg" alt="OKX" loading="lazy"><p>OKX</p></div>
+      <div class="work-item"><img src="mexc.jpg" alt="MEXC" loading="lazy"><p>MEXC</p></div>
+      <div class="work-item"><img src="zkpass.jpg" alt="ZKpassport" loading="lazy"><p>ZKpassport</p></div>
+      <div class="work-item"><img src="kaito.jpg" alt="Kaito" loading="lazy"><p>Kaito</p></div>
+      <div class="work-item"><img src="holonym.jpg" alt="Holonym" loading="lazy"><p>Holonym</p></div>
+      <div class="work-item"><img src="backpack.jpg" alt="Backpack" loading="lazy"><p>Backpack</p></div>
+      <div class="work-item"><img src="galxe.jpg" alt="Galxe" loading="lazy"><p>Galxe</p></div>
+      <div class="work-item"><img src="bitget.jpg" alt="Bitget" loading="lazy"><p>Bitget</p></div>
+      <div class="work-item"><img src="bybit.jpg" alt="Bybit" loading="lazy"><p>Bybit</p></div>
+      <div class="work-item"><img src="wechat+.jpg" alt="WeChat" loading="lazy"><p>WeChat</p></div>
+      <div class="work-item"><img src="paxful.jpg" alt="Paxful" loading="lazy"><p>Paxful</p></div>
+      <div class="work-item"><img src="bingx.jpg" alt="BingX" loading="lazy"><p>BingX</p></div>
+    </div>
+
+    <div class="kyc-banner">
+      <h1
+        data-en="I OFFER ALL KYC SERVICES AT A VERY AFFORDABLE PRICE."
+        data-zh="我提供所有KYC服务，价格实惠。">
+        I OFFER ALL KYC SERVICES AT A VERY AFFORDABLE PRICE.
+      </h1>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials (Section 5) -->
+<section id="testimonials" class="testimonials">
+  <div class="container">
+    <h2 data-en="What My Clients Say" data-zh="客户怎么说">What My Clients Say</h2>
+
+    <div class="testimonial-container">
+      <div class="testimonial-track">
+        <div class="testimonial"><strong>GOOD SERVICES PROVIDED!</strong><img src="evi1.jpg" alt="evi1" loading="lazy"></div>
+        <div class="testimonial"><strong>HEALTHY WORK RELATIONSHIPS BUILT.</strong><img src="evi2.jpg" alt="evi2" loading="lazy"></div>
+        <div class="testimonial"><strong>BIG ORDERS MADE</strong><img src="evi3.jpg" alt="evi3" loading="lazy"></div>
+        <div class="testimonial"><strong>QUALITY WORK GUARANTEED</strong><img src="evi4.jpg" alt="evi4" loading="lazy"></div>
+        <div class="testimonial"><strong>EXCELLENT COOPERATION</strong><img src="evi5.jpg" alt="evi5" loading="lazy"></div>
+        <div class="testimonial"><strong>HIGH QUALITY ACCOUNTS DELIVERED</strong><img src="evi6.jpg" alt="evi6" loading="lazy"></div>
+        <div class="testimonial"><strong>QUALITY WORK LEADING TO REFERRALS</strong><img src="evi7.jpg" alt="evi7" loading="lazy"></div>
+        <div class="testimonial"><strong>BIG ORDERS DELIVERED IN TIME</strong><img src="evi8.jpg" alt="evi8" loading="lazy"></div>
+        <div class="testimonial"><strong>FRIENDSHIPS MADE</strong><img src="evi9.jpg" alt="evi9" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact (Section 7) -->
+<section id="contact" class="contact">
+  <div class="container">
+    <div class="center-text">
+      <h2 data-en="Contact Me" data-zh="联系我">Contact Me</h2>
+
+      <p data-en="Need Reliable KYC Verification Services?" data-zh="需要可靠的KYC验证服务吗？">Need Reliable KYC Verification Services?</p>
+      <p data-en="Looking for fast, secure, and affordable KYC solutions? You’ve found the right team."
+         data-zh="想要快速、安全且实惠的KYC方案？你找对团队了。">
+         Looking for fast, secure, and affordable KYC solutions? You’ve found the right team.
+      </p>
+
+      <p data-en="✅ Affordable Rates – Every account is priced individually, so you only pay what’s fair."
+         data-zh="✅ 价格公道——按账号需求定价，合理透明。">
+         ✅ Affordable Rates – Every account is priced individually, so you only pay what’s fair.
+      </p>
+
+      <p data-en="✅ Trusted Team of 1,000+ Real Verifiers – No bots, no shortcuts — only real people."
+         data-zh="✅ 1000+真人验证团队——拒绝机器人与投机取巧，只做真实合规。">
+         ✅ Trusted Team of 1,000+ Real Verifiers – No bots, no shortcuts — only real people.
+      </p>
+
+      <p data-en="✅ For Individuals & Studios – Whether you’re a solo user or managing multiple accounts, we’ve got you covered."
+         data-zh="✅ 个人与工作室皆可——无论单账号还是多账号运营，都可放心交给我们。">
+         ✅ For Individuals & Studios – Whether you’re a solo user or managing multiple accounts, we’ve got you covered.
+      </p>
+
+      <p data-en="✅ Speed & Privacy Guaranteed – We value your time and security."
+         data-zh="✅ 速度与隐私保障——重视你的时间与安全。">
+         ✅ Speed & Privacy Guaranteed – We value your time and security.
+      </p>
+
+      <h3 style="color:var(--accent); font-weight:bold;"
+          data-en="📩 Contact me now on WeChat or Telegram for quick, confidential communication."
+          data-zh="📩 现在通过微信或电报联系我，快速且私密沟通。">
+          📩 Contact me now on WeChat or Telegram for quick, confidential communication.
+      </h3>
+    </div>
+
+    <!-- Icons below text, aligned left inside the section -->
+    <div class="contact-icons">
+      <a class="telegram" href="https://t.me/cgk48" target="_blank" aria-label="Telegram">
+        <i class="fab fa-telegram-plane"></i>
+      </a>
+      <a class="wechat" href="weixin://dl/chat?jukekyc" aria-label="WeChat">
+        <i class="fab fa-weixin"></i>
+      </a>
+    </div>
+
+    <!-- QR -->
+    <div class="qr-section">
+      <p data-en="or scan this QR code on WeChat" data-zh="或在微信中扫描此二维码">or scan this QR code on WeChat</p>
+      <img src="wechat2.jpg" alt="WeChat QR" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div style="margin-bottom:8px;">
+      <a href="#home" data-en="Home" data-zh="首页">Home</a> |
+      <a href="#services" data-en="Services" data-zh="服务">Services</a> |
+      <a href="#contact" data-en="Contact" data-zh="联系">Contact</a>
+    </div>
+    <p>© <span id="year"></span> Clinton Gitonga. All Rights Reserved.</p>
+  </div>
+</footer>
+
+<script>
+  /* ========= Language Switcher (text only) ========= */
+  const btnEn = document.getElementById('btn-en');
+  const btnZh = document.getElementById('btn-zh');
+
+  function setLang(lang){
+    document.documentElement.lang = (lang === 'zh' ? 'zh-Hans' : 'en');
+    document.querySelectorAll('[data-en]').forEach(el=>{
+      const text = el.getAttribute(lang === 'zh' ? 'data-zh' : 'data-en');
+      if(text !== null){ el.textContent = text; }
+    });
+    btnEn.classList.toggle('active', lang === 'en');
+    btnZh.classList.toggle('active', lang === 'zh');
+    btnEn.setAttribute('aria-pressed', lang === 'en');
+    btnZh.setAttribute('aria-pressed', lang === 'zh');
+  }
+  btnEn.addEventListener('click',()=>setLang('en'));
+  btnZh.addEventListener('click',()=>setLang('zh'));
+
+  /* ========= Footer year ========= */
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ========= Smooth Canvas Stars WITH footer “swallow” lock ========= */
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const footerEl = document.querySelector('footer');
+
+  let W, H, DPR, stars = [];
+
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    // crisp scaling on HiDPI
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    initStars();
+  }
+  window.addEventListener('resize', resize, { passive:true });
+
+  function initStars(){
+    const count = Math.min(600, Math.floor(W * H / 3500)); // density with cap
+    stars = new Array(count).fill(0).map(()=>spawnStar(true));
+  }
+
+  function spawnStar(top=false){
+    return {
+      x: Math.random()*W,
+      y: top ? (Math.random()*H*0.35) : (Math.random()*H),
+      vx: (Math.random()-0.5)*0.15,
+      vy: Math.random()*0.55 + 0.18,
+      size: Math.random()*1.6 + 0.4,
+      tw: Math.random()*Math.PI*2
+    };
+  }
+
+  function getHolePosition(){
+    const r = footerEl.getBoundingClientRect();
+    // Default: near bottom of viewport. Once footer appears, lock to its top area.
+    const baseY = (r.top < H) ? Math.max(60, Math.min(r.top + 48, H - 40)) : (H - 40);
+    return { x: W * 0.5, y: baseY };
+  }
+
+  function animate(){
+    // soft trail for smoothness
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0,0,W,H);
+
+    const holeR = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hole-size')) || 280;
+    const { x: holeX, y: holeY } = getHolePosition();
+
+    // bottom gradient halo to emphasize swallow
+    const grad = ctx.createRadialGradient(holeX, holeY, holeR*0.15, holeX, holeY, holeR*0.6);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.65)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, Math.max(0, holeY - holeR), W, holeR + 80);
+
+    // physics
+    const G = 2200;      // gravity-like pull
+    const soft = 1200;   // softening
+    const swirl = 0.015; // tangential swirl
+    const drag = 0.999;  // light drag
+
+    for (let s of stars){
+      const dx = holeX - s.x;
+      const dy = holeY - s.y;
+      const dist2 = dx*dx + dy*dy + soft;
+      const dist = Math.sqrt(dist2);
+
+      const pull = (G / dist2) * (1 + Math.max(0, (s.y / H) - 0.4));
+      s.vx += (dx / dist) * pull;
+      s.vy += (dy / dist) * pull;
+
+      const px = -dy / (dist+1);
+      const py =  dx / (dist+1);
+      s.vx += px * swirl;
+      s.vy += py * swirl;
+
+      s.vy += 0.004; // gentle downward drift
+
+      s.vx *= drag;
+      s.vy *= drag;
+
+      s.x += s.vx;
+      s.y += s.vy;
+
+      // twinkle
+      s.tw += 0.05;
+      const twinkle = 0.6 + 0.4*Math.sin(s.tw);
+
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255,255,255,${0.9*twinkle})`;
+      ctx.arc(s.x, s.y, s.size*twinkle, 0, Math.PI*2);
+      ctx.fill();
+
+      // respawn if swallowed or off-screen
+      const swallowed = dist < holeR*0.32;
+      if (swallowed || s.x < -40 || s.x > W+40 || s.y > H+80){
+        const respawnTop = Math.random() < 0.85;
+        Object.assign(s, spawnStar(respawnTop));
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  // Initialize
+  resize();
+  setLang('en'); // default language
+  requestAnimationFrame(animate);
+</script>
+
+</body>
+</html>
